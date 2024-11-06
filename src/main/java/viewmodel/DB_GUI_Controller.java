@@ -62,6 +62,7 @@ public class DB_GUI_Controller implements Initializable {
             tv_email.setCellValueFactory(new PropertyValueFactory<>("email"));
             tv.setItems(data);
 
+            // Disable Edit and Delete buttons/menu items unless a record is selected
             editBtn.disableProperty().bind(tv.getSelectionModel().selectedItemProperty().isNull());
             deleteBtn.disableProperty().bind(tv.getSelectionModel().selectedItemProperty().isNull());
             editItem.disableProperty().bind(tv.getSelectionModel().selectedItemProperty().isNull());
@@ -78,7 +79,7 @@ public class DB_GUI_Controller implements Initializable {
             );
 
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -98,12 +99,13 @@ public class DB_GUI_Controller implements Initializable {
 
     @FXML
     protected void clearForm() {
-        first_name.setText("");
-        last_name.setText("");
-        department.setText("");
-        major.setText("");
-        email.setText("");
-        imageURL.setText("");
+        first_name.clear();
+        last_name.clear();
+        department.clear();
+        major.clear();
+        email.clear();
+        imageURL.clear();
+        tv.getSelectionModel().clearSelection();
     }
 
     @FXML
