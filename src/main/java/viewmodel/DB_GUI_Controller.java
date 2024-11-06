@@ -42,6 +42,10 @@ public class DB_GUI_Controller implements Initializable {
     @FXML
     private TableColumn<Person, Integer> tv_id;
     @FXML
+    private Button addBtn, deleteBtn, editBtn;
+    @FXML
+    private MenuItem editItem, deleteItem;
+    @FXML
     private TableColumn<Person, String> tv_fn, tv_ln, tv_department, tv_major, tv_email;
     private final DbConnectivityClass cnUtil = new DbConnectivityClass();
     private final ObservableList<Person> data = cnUtil.getData();
@@ -58,6 +62,20 @@ public class DB_GUI_Controller implements Initializable {
             tv_email.setCellValueFactory(new PropertyValueFactory<>("email"));
             tv.setItems(data);
 
+            editBtn.disableProperty().bind(tv.getSelectionModel().selectedItemProperty().isNull());
+            deleteBtn.disableProperty().bind(tv.getSelectionModel().selectedItemProperty().isNull());
+            editItem.disableProperty().bind(tv.getSelectionModel().selectedItemProperty().isNull());
+            deleteItem.disableProperty().bind(tv.getSelectionModel().selectedItemProperty().isNull());
+
+            // Enable Add button only if all fields are filled
+            addBtn.disableProperty().bind(
+                    Bindings.isEmpty(first_name.textProperty())
+                            .or(Bindings.isEmpty(last_name.textProperty()))
+                            .or(Bindings.isEmpty(department.textProperty()))
+                            .or(Bindings.isEmpty(major.textProperty()))
+                            .or(Bindings.isEmpty(email.textProperty()))
+                            .or(Bindings.isEmpty(imageURL.textProperty()))
+            );
 
         } catch (Exception e) {
             throw new RuntimeException(e);
