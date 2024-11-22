@@ -67,8 +67,8 @@ public class DB_GUI_Controller implements Initializable {
     MenuBar menuBar;
     @FXML
     private TableView<Person> tv;
-    @FXML
-    private TableColumn<Person, Integer> tv_id;
+//    @FXML
+//    private TableColumn<Person, Integer> tv_id;
     @FXML
     private Button addBtn, deleteBtn, editBtn;
     @FXML
@@ -88,7 +88,7 @@ public class DB_GUI_Controller implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
-            tv_id.setCellValueFactory(new PropertyValueFactory<>("id"));
+            //tv_id.setCellValueFactory(new PropertyValueFactory<>("id"));
             tv_fn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
             tv_ln.setCellValueFactory(new PropertyValueFactory<>("lastName"));
             tv_department.setCellValueFactory(new PropertyValueFactory<>("department"));
@@ -221,7 +221,7 @@ public class DB_GUI_Controller implements Initializable {
                     majorComboBox.getValue().toString(), email.getText(), imageURL.getText());
 
             if (cnUtil.emailExists(p.getEmail())) {
-                showAlert("Error", "Duplicate Email", "A user with this email already exists.", Alert.AlertType.ERROR);
+                updateStatusMessage("Error: A user with this email already exists.");
                 return;
             }
 
@@ -231,22 +231,23 @@ public class DB_GUI_Controller implements Initializable {
                 p.setId(id);
                 data.add(p);
                 clearForm();
-                showAlert("Success", "Record Added", "New record added successfully.", Alert.AlertType.INFORMATION);
+                updateStatusMessage("New record added successfully.");
             } else {
-                showAlert("Error", "Insert Failed", "Failed to add new record.", Alert.AlertType.ERROR);
+                updateStatusMessage("Error: Failed to add new record.");
             }
         } catch (Exception e) {
-            showAlert("Error", "Insert Failed", "An error occurred: " + e.getMessage(), Alert.AlertType.ERROR);
+            updateStatusMessage("Error: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
 
     @FXML
     protected void clearForm() {
         first_name.clear();
         last_name.clear();
         department.clear();
-        majorComboBox.getSelectionModel().clearSelection();
+        majorComboBox.getSelectionModel().selectFirst(); // Select the first item instead of clearing
         email.clear();
         imageURL.clear();
         tv.getSelectionModel().clearSelection();
@@ -295,13 +296,14 @@ public class DB_GUI_Controller implements Initializable {
                 cnUtil.editUser(p.getId(), p2);
                 data.set(index, p2);
                 tv.getSelectionModel().select(index);
-                showAlert("Success", "Record Updated", "Record updated successfully.", Alert.AlertType.INFORMATION);
+                updateStatusMessage("Record updated successfully.");
             } catch (Exception e) {
-                showAlert("Error", "Update Failed", "Failed to update record: " + e.getMessage(), Alert.AlertType.ERROR);
+                updateStatusMessage("Error: Failed to update record - " + e.getMessage());
                 e.printStackTrace();
             }
         }
     }
+
 
     @FXML
     protected void deleteRecord() {
@@ -311,21 +313,54 @@ public class DB_GUI_Controller implements Initializable {
                 cnUtil.deleteRecord(p);
                 data.remove(p);
                 clearForm();
-                showAlert("Success", "Record Deleted", "Record deleted successfully.", Alert.AlertType.INFORMATION);
+                updateStatusMessage("Record deleted successfully.");
             } catch (Exception e) {
-                showAlert("Error", "Deletion Failed", "Failed to delete record: " + e.getMessage(), Alert.AlertType.ERROR);
+                updateStatusMessage("Error: Failed to delete record - " + e.getMessage());
                 e.printStackTrace();
             }
         }
     }
+
 
     @FXML
     protected void showImage() {
         File file = (new FileChooser()).showOpenDialog(img_view.getScene().getWindow());
         if (file != null) {
             img_view.setImage(new Image(file.toURI().toString()));
+            Task<Void> uploadTask = createUploadTask(file, progressBar);
+            progressBar.progressProperty().bind(uploadTask.progressProperty());
+            new Thread(uploadTask).start();
         }
     }
+    private Task<Void> createUploadTask(File file, ProgressBar progressBar) {
+        return new Task<>() {
+            @Override
+            protected Void call() throws Exception {
+                BlobClient blobClient = store.getContainerClient().getBlobClient(file.getName());
+                long fileSize = Files.size(file.toPath());
+                long uploadedBytes = 0;
+
+                try (FileInputStream fileInputStream = new FileInputStream(file);
+                     OutputStream blobOutputStream = blobClient.getBlockBlobClient().getBlobOutputStream()) {
+
+                    byte[] buffer = new byte[1024 * 1024]; // 1 MB buffer size
+                    int bytesRead;
+
+                    while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+                        blobOutputStream.write(buffer, 0, bytesRead);
+                        uploadedBytes += bytesRead;
+
+                        // Calculate and update progress as a percentage
+                        int progress = (int) ((double) uploadedBytes / fileSize * 100);
+                        updateProgress(progress, 100);
+                    }
+                }
+
+                return null;
+            }
+        };
+    }
+
 
     @FXML
     protected void addRecord() {
