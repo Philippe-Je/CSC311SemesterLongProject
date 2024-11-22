@@ -27,11 +27,19 @@ import javafx.util.Duration;
 import model.Person;
 import service.MyLogger;
 
+
+import java.io.*;
+import javafx.stage.FileChooser;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+import javafx.scene.control.Alert;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.nio.file.Files;
+import java.sql.SQLException;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
@@ -39,6 +47,10 @@ import java.util.regex.Pattern;
 public class DB_GUI_Controller implements Initializable {
 
     StorageUploader store = new StorageUploader();
+    @FXML
+    private MenuItem importCSVMenuItem;
+    @FXML
+    private MenuItem exportCSVMenuItem;
     @FXML
     StorageUploader storageUploader;
     @FXML
@@ -116,6 +128,74 @@ public class DB_GUI_Controller implements Initializable {
         }
     }
 
+    @FXML
+    private void importCSV() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select CSV File to Import");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+        File file = fileChooser.showOpenDialog(null);
+
+        if (file != null) {
+            try (CSVReader reader = new CSVReader(new FileReader(file))) {
+                String[] nextLine;
+                reader.readNext(); // Skip header row
+                while ((nextLine = reader.readNext()) != null) {
+                    Person person = new Person(
+                            nextLine[0], // firstName
+                            nextLine[1], // lastName
+                            nextLine[2], // department
+                            nextLine[3], // major
+                            nextLine[4], // email
+                            nextLine[5]  // imageURL
+                    );
+                    cnUtil.insertUser(person);
+                    data.add(person);
+                }
+                tv.refresh();
+                showAlert("Success", "CSV Import", "CSV file imported successfully.", Alert.AlertType.INFORMATION);
+            } catch (Exception e) {
+                e.printStackTrace();
+                showAlert("Error", "Failed to import CSV file", e.getMessage(), Alert.AlertType.ERROR);
+            }
+        }
+    }
+    @FXML
+    private void exportCSV() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save CSV File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+        File file = fileChooser.showSaveDialog(null);
+
+        if (file != null) {
+            try (CSVWriter writer = new CSVWriter(new FileWriter(file))) {
+                String[] header = {"First Name", "Last Name", "Department", "Major", "Email", "Image URL"};
+                writer.writeNext(header);
+
+                for (Person person : data) {
+                    String[] row = {
+                            person.getFirstName(),
+                            person.getLastName(),
+                            person.getDepartment(),
+                            person.getMajor(),
+                            person.getEmail(),
+                            person.getImageURL()
+                    };
+                    writer.writeNext(row);
+                }
+                showAlert("Success", "CSV Export", "CSV file exported successfully.", Alert.AlertType.INFORMATION);
+            } catch (Exception e) {
+                e.printStackTrace();
+                showAlert("Error", "Failed to export CSV file", e.getMessage(), Alert.AlertType.ERROR);
+            }
+        }
+    }
+    private void showAlert(String title, String header, String content, Alert.AlertType alertType) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(header);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
     private void addValidationListener(TextField textField, Pattern pattern) {
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (pattern.matcher(newValue).matches()) {
@@ -136,14 +216,29 @@ public class DB_GUI_Controller implements Initializable {
     }
     @FXML
     protected void addNewRecord() {
-        Person p = new Person(first_name.getText(), last_name.getText(), department.getText(),
-                majorComboBox.getValue().toString(), email.getText(), imageURL.getText());
-        cnUtil.insertUser(p);
-        cnUtil.retrieveId(p);
-        p.setId(cnUtil.retrieveId(p));
-        data.add(p);
-        clearForm();
-        updateStatusMessage("New record added successfully.");
+        try {
+            Person p = new Person(first_name.getText(), last_name.getText(), department.getText(),
+                    majorComboBox.getValue().toString(), email.getText(), imageURL.getText());
+
+            if (cnUtil.emailExists(p.getEmail())) {
+                showAlert("Error", "Duplicate Email", "A user with this email already exists.", Alert.AlertType.ERROR);
+                return;
+            }
+
+            boolean insertSuccess = cnUtil.insertUser(p);
+            if (insertSuccess) {
+                int id = cnUtil.retrieveId(p);
+                p.setId(id);
+                data.add(p);
+                clearForm();
+                showAlert("Success", "Record Added", "New record added successfully.", Alert.AlertType.INFORMATION);
+            } else {
+                showAlert("Error", "Insert Failed", "Failed to add new record.", Alert.AlertType.ERROR);
+            }
+        } catch (Exception e) {
+            showAlert("Error", "Insert Failed", "An error occurred: " + e.getMessage(), Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -192,24 +287,36 @@ public class DB_GUI_Controller implements Initializable {
     @FXML
     protected void editRecord() {
         Person p = tv.getSelectionModel().getSelectedItem();
-        int index = data.indexOf(p);
-        Person p2 = new Person(index + 1, first_name.getText(), last_name.getText(), department.getText(),
-                majorComboBox.getValue().toString(), email.getText(), imageURL.getText());
-        cnUtil.editUser(p.getId(), p2);
-        data.remove(p);
-        data.add(index, p2);
-        tv.getSelectionModel().select(index);
-        updateStatusMessage("Record updated successfully.");
+        if (p != null) {
+            try {
+                int index = data.indexOf(p);
+                Person p2 = new Person(p.getId(), first_name.getText(), last_name.getText(), department.getText(),
+                        majorComboBox.getValue().toString(), email.getText(), imageURL.getText());
+                cnUtil.editUser(p.getId(), p2);
+                data.set(index, p2);
+                tv.getSelectionModel().select(index);
+                showAlert("Success", "Record Updated", "Record updated successfully.", Alert.AlertType.INFORMATION);
+            } catch (Exception e) {
+                showAlert("Error", "Update Failed", "Failed to update record: " + e.getMessage(), Alert.AlertType.ERROR);
+                e.printStackTrace();
+            }
+        }
     }
 
     @FXML
     protected void deleteRecord() {
         Person p = tv.getSelectionModel().getSelectedItem();
-        int index = data.indexOf(p);
-        cnUtil.deleteRecord(p);
-        data.remove(index);
-        tv.getSelectionModel().select(index);
-        updateStatusMessage("Record deleted successfully.");
+        if (p != null) {
+            try {
+                cnUtil.deleteRecord(p);
+                data.remove(p);
+                clearForm();
+                showAlert("Success", "Record Deleted", "Record deleted successfully.", Alert.AlertType.INFORMATION);
+            } catch (Exception e) {
+                showAlert("Error", "Deletion Failed", "Failed to delete record: " + e.getMessage(), Alert.AlertType.ERROR);
+                e.printStackTrace();
+            }
+        }
     }
 
     @FXML

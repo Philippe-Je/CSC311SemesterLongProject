@@ -123,6 +123,24 @@ public class DbConnectivityClass {
         }
     }
 
+    public boolean emailExists(String email) {
+        try {
+            Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
+            String sql = "SELECT COUNT(*) FROM users WHERE email = ?";
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setString(1, email);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            int count = resultSet.getInt(1);
+            preparedStatement.close();
+            conn.close();
+            return count > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     public void listAllUsers() {
         connectToDatabase();
         try {
@@ -151,9 +169,13 @@ public class DbConnectivityClass {
         }
     }
 
-    public void insertUser(Person person) {
+
+    public boolean insertUser(Person person) {
         connectToDatabase();
         try {
+            if (emailExists(person.getEmail())) {
+                return false;
+            }
             Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
             String sql = "INSERT INTO users (first_name, last_name, department, major, email, imageURL) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
@@ -164,13 +186,12 @@ public class DbConnectivityClass {
             preparedStatement.setString(5, person.getEmail());
             preparedStatement.setString(6, person.getImageURL());
             int row = preparedStatement.executeUpdate();
-            if (row > 0) {
-                lg.makeLog("A new user was inserted successfully.");
-            }
             preparedStatement.close();
             conn.close();
+            return row > 0;
         } catch (SQLException e) {
             e.printStackTrace();
+            return false;
         }
     }
 
