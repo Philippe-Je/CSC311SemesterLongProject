@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
@@ -71,7 +72,14 @@
                 </VBox>
             </left>
             <bottom>
-                <HBox prefHeight="30.0" prefWidth="892.0" styleClass="admin_section" BorderPane.alignment="CENTER" />
+                <HBox alignment="CENTER" prefHeight="30.0" prefWidth="892.0" styleClass="admin_section" BorderPane.alignment="CENTER">
+               <children>
+                  <Label fx:id="statusLabel" styleClass="status-label" HBox.hgrow="ALWAYS">
+                     <stylesheets>
+                        <URL value="@../css/darkTheme.css" />
+                        <URL value="@../css/lightTheme.css" />
+                     </stylesheets></Label>
+               </children></HBox>
             </bottom>
          <right>
                 <VBox prefHeight="540.0" prefWidth="202.0" styleClass="text_field_pane" BorderPane.alignment="CENTER">

@@ -3,6 +3,7 @@ package viewmodel;
 import com.azure.storage.blob.BlobClient;
 import dao.DbConnectivityClass;
 import dao.StorageUploader;
+import javafx.animation.FadeTransition;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.collections.FXCollections;
@@ -22,6 +23,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import model.Person;
 import service.MyLogger;
 
@@ -45,6 +47,8 @@ public class DB_GUI_Controller implements Initializable {
     TextField first_name, last_name, department, email, imageURL;
     @FXML
     ComboBox<Major> majorComboBox;
+    @FXML
+    private Label statusLabel;
     @FXML
     ImageView img_view;
     @FXML
@@ -122,7 +126,14 @@ public class DB_GUI_Controller implements Initializable {
         });
     }
 
-
+    private void updateStatusMessage(String message) {
+        statusLabel.setText(message);
+        FadeTransition fadeOut = new FadeTransition(Duration.seconds(3), statusLabel);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+        fadeOut.setOnFinished(event -> statusLabel.setText(""));
+        fadeOut.play();
+    }
     @FXML
     protected void addNewRecord() {
         Person p = new Person(first_name.getText(), last_name.getText(), department.getText(),
@@ -132,6 +143,7 @@ public class DB_GUI_Controller implements Initializable {
         p.setId(cnUtil.retrieveId(p));
         data.add(p);
         clearForm();
+        updateStatusMessage("New record added successfully.");
     }
 
     @FXML
@@ -187,6 +199,7 @@ public class DB_GUI_Controller implements Initializable {
         data.remove(p);
         data.add(index, p2);
         tv.getSelectionModel().select(index);
+        updateStatusMessage("Record updated successfully.");
     }
 
     @FXML
@@ -196,6 +209,7 @@ public class DB_GUI_Controller implements Initializable {
         cnUtil.deleteRecord(p);
         data.remove(index);
         tv.getSelectionModel().select(index);
+        updateStatusMessage("Record deleted successfully.");
     }
 
     @FXML

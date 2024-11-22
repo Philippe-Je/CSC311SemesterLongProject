@@ -82,6 +82,17 @@
     -fx-background-color: lightBlue;
     -fx-text-fill: grey;
 }
+
+.status-label {
+    -fx-text-fill: #4CAF50;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 5px;
+    -fx-background-color: #F0F0F0;
+    -fx-background-radius: 5px;
+    -fx-border-color: #CCC;
+    -fx-border-radius: 5px;
+}
 /* scroll bar starts here */
 
 /* The increment and decrement button CSS class of scrollbar */
