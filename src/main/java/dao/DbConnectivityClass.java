@@ -17,6 +17,7 @@ public class DbConnectivityClass {
     final static String PASSWORD = "Cscserver0429";// update this password
 
 
+
     private final ObservableList<Person> data = FXCollections.observableArrayList();
 
     // Method to retrieve all data from the database and store it into an observable list to use in the GUI tableview.

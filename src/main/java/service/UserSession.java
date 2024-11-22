@@ -19,6 +19,7 @@ public class UserSession {
         saveToPreferences();
     }
 
+
     public static UserSession getInstance(String userName, String password, String privileges) {
         UserSession result = instance;
         if (result == null) {
@@ -68,7 +69,6 @@ public class UserSession {
     public String getPrivileges() {
         return this.privileges;
     }
-
     @Override
     public String toString() {
         return "UserSession{userName='" + this.userName + "', privileges=" + this.privileges + '}';
