@@ -8,6 +8,7 @@ public class UserSession {
     private static volatile UserSession instance;
     private static final ReadWriteLock lock = new ReentrantReadWriteLock();
 
+
     private final String username;
     private final String role;
     private final Preferences prefs;

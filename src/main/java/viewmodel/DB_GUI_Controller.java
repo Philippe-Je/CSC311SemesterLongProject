@@ -395,7 +395,6 @@ public class DB_GUI_Controller implements Initializable {
                 } else {
                     majorComboBox.setValue(null);
                 }
-
                 email.setText(p.getEmail());
                 imageURL.setText(p.getImageURL());
             } else {

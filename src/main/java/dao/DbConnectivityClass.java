@@ -245,6 +245,7 @@ public class DbConnectivityClass {
         }
     }
 
+
     public boolean verifyUser(String username, String password) {
         connectToDatabase();
         try {

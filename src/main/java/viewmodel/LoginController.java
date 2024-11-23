@@ -92,6 +92,7 @@ public class LoginController {
             System.out.println("Credentials verification result: " + verified);
 
             if (verified) {
+
                 System.out.println("Creating user session...");
                 UserSession userSession = UserSession.getInstance(username, "USER");
                 userSession.saveCredentials(username, password);

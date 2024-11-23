@@ -21,7 +21,6 @@ public class MainApplication extends Application {
         launch(args);
 
     }
-
     public void start(Stage primaryStage) {
         Image icon = new Image(getClass().getResourceAsStream("/images/DollarClouddatabase.png"));
         this.primaryStage = primaryStage;

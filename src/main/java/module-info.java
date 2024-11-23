@@ -7,7 +7,6 @@ module com.example.csc311_db_ui_semesterlongproject {
     requires com.opencsv;
     requires bcrypt;
 
-
     opens viewmodel;
     exports viewmodel;
     opens dao;

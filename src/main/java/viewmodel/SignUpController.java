@@ -18,6 +18,7 @@ import service.UserSession;
 import java.util.regex.Pattern;
 
 public class SignUpController {
+
     @FXML
     private TextField firstNameField;
     @FXML
