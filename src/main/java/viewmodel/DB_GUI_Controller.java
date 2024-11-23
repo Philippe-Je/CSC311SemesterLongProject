@@ -67,8 +67,8 @@ public class DB_GUI_Controller implements Initializable {
     MenuBar menuBar;
     @FXML
     private TableView<Person> tv;
-//    @FXML
-//    private TableColumn<Person, Integer> tv_id;
+    @FXML
+ private TableColumn<Person, Integer> tv_id;
     @FXML
     private Button addBtn, deleteBtn, editBtn;
     @FXML
@@ -88,7 +88,7 @@ public class DB_GUI_Controller implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
-            //tv_id.setCellValueFactory(new PropertyValueFactory<>("id"));
+            tv_id.setCellValueFactory(new PropertyValueFactory<>("id"));
             tv_fn.setCellValueFactory(new PropertyValueFactory<>("firstName"));
             tv_ln.setCellValueFactory(new PropertyValueFactory<>("lastName"));
             tv_department.setCellValueFactory(new PropertyValueFactory<>("department"));

@@ -17,7 +17,6 @@ public class DbConnectivityClass {
     final static String PASSWORD = "Cscserver0429";// update this password
 
 
-
     private final ObservableList<Person> data = FXCollections.observableArrayList();
 
     // Method to retrieve all data from the database and store it into an observable list to use in the GUI tableview.
@@ -51,7 +50,30 @@ public class DbConnectivityClass {
         return data;
     }
 
-
+    public boolean registerUser(String firstName, String lastName, String username, String email, String password) {
+        connectToDatabase();
+        try {
+            if (emailExists(email)) {
+                return false;
+            }
+            Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
+            String sql = "INSERT INTO users (first_name, last_name, username, email, password) " +
+                    "VALUES (?, ?, ?, ?, ?)";
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setString(1, firstName);
+            preparedStatement.setString(2, lastName);
+            preparedStatement.setString(3, username);
+            preparedStatement.setString(4, email);
+            preparedStatement.setString(5, password);
+            int row = preparedStatement.executeUpdate();
+            preparedStatement.close();
+            conn.close();
+            return row > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
     public boolean connectToDatabase() {
         boolean hasRegistredUsers = false;
 
@@ -68,12 +90,16 @@ public class DbConnectivityClass {
             //Second, connect to the database and create the table "users" if cot created
             conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
             statement = conn.createStatement();
-            String sql = "CREATE TABLE IF NOT EXISTS users (" + "id INT( 10 ) NOT NULL PRIMARY KEY AUTO_INCREMENT,"
-                    + "first_name VARCHAR(200) NOT NULL," + "last_name VARCHAR(200) NOT NULL,"
-                    + "department VARCHAR(200),"
-                    + "major VARCHAR(200),"
-                    + "email VARCHAR(200) NOT NULL UNIQUE,"
-                    + "imageURL VARCHAR(200))";
+            String sql = "CREATE TABLE IF NOT EXISTS users (" +
+                    "id INT(10) NOT NULL PRIMARY KEY AUTO_INCREMENT," +
+                    "first_name VARCHAR(200) NOT NULL," +
+                    "last_name VARCHAR(200) NOT NULL," +
+                    "username VARCHAR(200) NOT NULL UNIQUE," +
+                    "password VARCHAR(200) NOT NULL," +
+                    "department VARCHAR(200)," +
+                    "major VARCHAR(200)," +
+                    "email VARCHAR(200) NOT NULL UNIQUE," +
+                    "imageURL VARCHAR(200))";
             statement.executeUpdate(sql);
 
             //check if we have users in the table users
@@ -95,6 +121,24 @@ public class DbConnectivityClass {
         }
 
         return hasRegistredUsers;
+    }
+
+    public boolean usernameExists(String username) {
+        try {
+            Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
+            String sql = "SELECT COUNT(*) FROM users WHERE username = ?";
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setString(1, username);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            int count = resultSet.getInt(1);
+            preparedStatement.close();
+            conn.close();
+            return count > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     public void queryUserByLastName(String name) {
@@ -167,6 +211,25 @@ public class DbConnectivityClass {
             conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+    }
+
+    public boolean verifyUser(String username, String password) {
+        try {
+            Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
+            String sql = "SELECT COUNT(*) FROM users WHERE email = ? AND password = ?";
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2, password);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            int count = resultSet.getInt(1);
+            preparedStatement.close();
+            conn.close();
+            return count > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 
