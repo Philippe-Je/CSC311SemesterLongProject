@@ -8,26 +8,24 @@ public class UserSession {
     private static volatile UserSession instance;
     private static final ReadWriteLock lock = new ReentrantReadWriteLock();
 
-    private final String userName;
-    private final String password;
-    private final String privileges;
+    private final String username;
+    private final String role;
+    private final Preferences prefs;
 
-    private UserSession(String userName, String password, String privileges) {
-        this.userName = userName;
-        this.password = password;
-        this.privileges = privileges;
-        saveToPreferences();
+    private UserSession(String username, String role) {
+        this.username = username;
+        this.role = role;
+        this.prefs = Preferences.userRoot().node(this.getClass().getName());
     }
 
-
-    public static UserSession getInstance(String userName, String password, String privileges) {
+    public static UserSession getInstance(String username, String role) {
         UserSession result = instance;
         if (result == null) {
             lock.writeLock().lock();
             try {
                 result = instance;
                 if (result == null) {
-                    instance = result = new UserSession(userName, password, privileges);
+                    instance = result = new UserSession(username, role);
                 }
             } finally {
                 lock.writeLock().unlock();
@@ -36,25 +34,33 @@ public class UserSession {
         return result;
     }
 
-    public static UserSession getInstance(String userName, String password) {
-        return getInstance(userName, password, "NONE");
+    public void saveCredentials(String username, String password) {
+        prefs.put("username", username);
+        prefs.put("password", password);
     }
 
-    private void saveToPreferences() {
-        Preferences userPreferences = Preferences.userRoot().node(this.getClass().getName());
-        userPreferences.put("USERNAME", userName);
-        userPreferences.put("PASSWORD", password);
-        userPreferences.put("PRIVILEGES", privileges);
+    public String getUsername() {
+        return prefs.get("username", null);
+    }
+
+    public String getPassword() {
+        return prefs.get("password", null);
+    }
+
+    public void clearCredentials() {
+        prefs.remove("username");
+        prefs.remove("password");
+    }
+
+    public String getRole() {
+        return role;
     }
 
     public static void cleanUserSession() {
         lock.writeLock().lock();
         try {
             if (instance != null) {
-                Preferences userPreferences = Preferences.userRoot().node(instance.getClass().getName());
-                userPreferences.remove("USERNAME");
-                userPreferences.remove("PASSWORD");
-                userPreferences.remove("PRIVILEGES");
+                instance.clearCredentials();
                 instance = null;
             }
         } finally {
@@ -62,15 +68,8 @@ public class UserSession {
         }
     }
 
-    public String getUserName() {
-        return this.userName;
-    }
-
-    public String getPrivileges() {
-        return this.privileges;
-    }
     @Override
     public String toString() {
-        return "UserSession{userName='" + this.userName + "', privileges=" + this.privileges + '}';
+        return "UserSession{username='" + this.username + "', role=" + this.role + '}';
     }
 }

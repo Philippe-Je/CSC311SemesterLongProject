@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
@@ -80,7 +79,7 @@
                <children>
                   <ProgressBar fx:id="progressBar" prefHeight="30.0" prefWidth="246.0" progress="0.0">
                      <HBox.margin>
-                        <Insets right="71.0" />
+                        <Insets right="50.0" />
                      </HBox.margin></ProgressBar>
                   <Label fx:id="statusLabel" prefHeight="30.0" prefWidth="253.0" styleClass="status-label" HBox.hgrow="ALWAYS">
                      <stylesheets>
@@ -174,6 +173,7 @@
          <center>
                 <TableView fx:id="tv" onMouseClicked="#selectedItemTV" prefHeight="539.0" prefWidth="566.0" styleClass="table_view" BorderPane.alignment="CENTER">
                     <columns>
+                        <TableColumn fx:id="tv_id" prefWidth="117.0" styleClass="table_columns" text="ID" />
                         <TableColumn fx:id="tv_fn" prefWidth="117.0" styleClass="table_columns" text="First Name" />
                         <TableColumn fx:id="tv_ln" prefWidth="93.0" styleClass="table_columns" text="Last Name" />
                         <TableColumn fx:id="tv_department" prefWidth="122.0" styleClass="table_columns" text="Department" />

@@ -29,6 +29,7 @@ import service.MyLogger;
 
 
 import java.io.*;
+
 import javafx.stage.FileChooser;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
@@ -68,7 +69,7 @@ public class DB_GUI_Controller implements Initializable {
     @FXML
     private TableView<Person> tv;
     @FXML
- private TableColumn<Person, Integer> tv_id;
+    private TableColumn<Person, Integer> tv_id;
     @FXML
     private Button addBtn, deleteBtn, editBtn;
     @FXML
@@ -159,6 +160,7 @@ public class DB_GUI_Controller implements Initializable {
             }
         }
     }
+
     @FXML
     private void exportCSV() {
         FileChooser fileChooser = new FileChooser();
@@ -189,6 +191,7 @@ public class DB_GUI_Controller implements Initializable {
             }
         }
     }
+
     private void showAlert(String title, String header, String content, Alert.AlertType alertType) {
         Alert alert = new Alert(alertType);
         alert.setTitle(title);
@@ -196,6 +199,7 @@ public class DB_GUI_Controller implements Initializable {
         alert.setContentText(content);
         alert.showAndWait();
     }
+
     private void addValidationListener(TextField textField, Pattern pattern) {
         textField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (pattern.matcher(newValue).matches()) {
@@ -214,6 +218,7 @@ public class DB_GUI_Controller implements Initializable {
         fadeOut.setOnFinished(event -> statusLabel.setText(""));
         fadeOut.play();
     }
+
     @FXML
     protected void addNewRecord() {
         try {
@@ -332,6 +337,7 @@ public class DB_GUI_Controller implements Initializable {
             new Thread(uploadTask).start();
         }
     }
+
     private Task<Void> createUploadTask(File file, ProgressBar progressBar) {
         return new Task<>() {
             @Override
@@ -369,16 +375,35 @@ public class DB_GUI_Controller implements Initializable {
 
     @FXML
     protected void selectedItemTV(MouseEvent mouseEvent) {
-        Person p = tv.getSelectionModel().getSelectedItem();
-        if (p != null) {
-            first_name.setText(p.getFirstName());
-            last_name.setText(p.getLastName());
-            department.setText(p.getDepartment());
-            majorComboBox.setValue(Major.valueOf(p.getMajor()));
-            email.setText(p.getEmail());
-            imageURL.setText(p.getImageURL());
-        } else {
-            clearForm();
+        try {
+            Person p = tv.getSelectionModel().getSelectedItem();
+            if (p != null) {
+                first_name.setText(p.getFirstName());
+                last_name.setText(p.getLastName());
+                department.setText(p.getDepartment());
+
+                // Safe handling of major value
+                String majorStr = p.getMajor();
+                if (majorStr != null && !majorStr.isEmpty()) {
+                    try {
+                        Major major = Major.valueOf(majorStr.toUpperCase());
+                        majorComboBox.setValue(major);
+                    } catch (IllegalArgumentException e) {
+                        System.err.println("Invalid major value: " + majorStr);
+                        majorComboBox.setValue(null);
+                    }
+                } else {
+                    majorComboBox.setValue(null);
+                }
+
+                email.setText(p.getEmail());
+                imageURL.setText(p.getImageURL());
+            } else {
+                clearForm();
+            }
+        } catch (Exception e) {
+            System.err.println("Error in selectedItemTV: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -437,8 +462,19 @@ public class DB_GUI_Controller implements Initializable {
         });
     }
 
-    private enum Major {
-        CS, CPIS, English
+    public enum Major {
+        CS, CPIS, ENGLISH;
+
+        public static Major fromString(String text) {
+            if (text != null && !text.isEmpty()) {
+                try {
+                    return valueOf(text.toUpperCase());
+                } catch (IllegalArgumentException e) {
+                    return null;
+                }
+            }
+            return null;
+        }
     }
 
     private static class Results {

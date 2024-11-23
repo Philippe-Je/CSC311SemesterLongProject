@@ -4,6 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.Person;
 import service.MyLogger;
+import at.favre.lib.crypto.bcrypt.BCrypt;
 
 import java.sql.*;
 
@@ -19,61 +20,8 @@ public class DbConnectivityClass {
 
     private final ObservableList<Person> data = FXCollections.observableArrayList();
 
-    // Method to retrieve all data from the database and store it into an observable list to use in the GUI tableview.
 
 
-    public ObservableList<Person> getData() {
-        connectToDatabase();
-        try {
-            Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
-            String sql = "SELECT * FROM users ";
-            PreparedStatement preparedStatement = conn.prepareStatement(sql);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (!resultSet.isBeforeFirst()) {
-                lg.makeLog("No data");
-            }
-            while (resultSet.next()) {
-                int id = resultSet.getInt("id");
-                String first_name = resultSet.getString("first_name");
-                String last_name = resultSet.getString("last_name");
-                String department = resultSet.getString("department");
-                String major = resultSet.getString("major");
-                String email = resultSet.getString("email");
-                String imageURL = resultSet.getString("imageURL");
-                data.add(new Person(id, first_name, last_name, department, major, email, imageURL));
-            }
-            preparedStatement.close();
-            conn.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return data;
-    }
-
-    public boolean registerUser(String firstName, String lastName, String username, String email, String password) {
-        connectToDatabase();
-        try {
-            if (emailExists(email)) {
-                return false;
-            }
-            Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
-            String sql = "INSERT INTO users (first_name, last_name, username, email, password) " +
-                    "VALUES (?, ?, ?, ?, ?)";
-            PreparedStatement preparedStatement = conn.prepareStatement(sql);
-            preparedStatement.setString(1, firstName);
-            preparedStatement.setString(2, lastName);
-            preparedStatement.setString(3, username);
-            preparedStatement.setString(4, email);
-            preparedStatement.setString(5, password);
-            int row = preparedStatement.executeUpdate();
-            preparedStatement.close();
-            conn.close();
-            return row > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
     public boolean connectToDatabase() {
         boolean hasRegistredUsers = false;
 
@@ -123,7 +71,89 @@ public class DbConnectivityClass {
         return hasRegistredUsers;
     }
 
+    public ObservableList<Person> getData() {
+        connectToDatabase();
+        try {
+            Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
+            String sql = "SELECT * FROM users ";
+            PreparedStatement preparedStatement = conn.prepareStatement(sql);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (!resultSet.isBeforeFirst()) {
+                lg.makeLog("No data");
+            }
+            while (resultSet.next()) {
+                int id = resultSet.getInt("id");
+                String first_name = resultSet.getString("first_name");
+                String last_name = resultSet.getString("last_name");
+                String department = resultSet.getString("department");
+                String major = resultSet.getString("major");
+                String email = resultSet.getString("email");
+                String imageURL = resultSet.getString("imageURL");
+                data.add(new Person(id, first_name, last_name, department, major, email, imageURL));
+            }
+            preparedStatement.close();
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return data;
+    }
+
+    public boolean registerUser(String firstName, String lastName, String username, String email, String password) {
+        connectToDatabase();
+        Connection conn = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
+            conn.setAutoCommit(false);
+
+            if (emailExists(email) || usernameExists(username)) {
+                return false;
+            }
+
+            String sql = "INSERT INTO users (first_name, last_name, username, email, password) VALUES (?, ?, ?, ?, ?)";
+            preparedStatement = conn.prepareStatement(sql);
+            preparedStatement.setString(1, firstName);
+            preparedStatement.setString(2, lastName);
+            preparedStatement.setString(3, username);
+            preparedStatement.setString(4, email);
+
+            // Use the correct BCrypt method to hash the password
+            String hashedPassword = BCrypt.withDefaults().hashToString(12, password.toCharArray());
+            preparedStatement.setString(5, hashedPassword);
+
+            int affectedRows = preparedStatement.executeUpdate();
+            conn.commit();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
     public boolean usernameExists(String username) {
+        connectToDatabase();
         try {
             Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
             String sql = "SELECT COUNT(*) FROM users WHERE username = ?";
@@ -169,6 +199,7 @@ public class DbConnectivityClass {
     }
 
     public boolean emailExists(String email) {
+        connectToDatabase();
         try {
             Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
             String sql = "SELECT COUNT(*) FROM users WHERE email = ?";
@@ -215,24 +246,29 @@ public class DbConnectivityClass {
     }
 
     public boolean verifyUser(String username, String password) {
+        connectToDatabase();
         try {
             Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
-            String sql = "SELECT COUNT(*) FROM users WHERE email = ? AND password = ?";
+            String sql = "SELECT password FROM users WHERE username = ?";
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
             preparedStatement.setString(1, username);
-            preparedStatement.setString(2, password);
+
+            System.out.println("Attempting login with username: " + username);
+
             ResultSet resultSet = preparedStatement.executeQuery();
-            resultSet.next();
-            int count = resultSet.getInt(1);
-            preparedStatement.close();
-            conn.close();
-            return count > 0;
+            if (resultSet.next()) {
+                String storedHash = resultSet.getString("password");
+                BCrypt.Result result = BCrypt.verifyer().verify(password.toCharArray(), storedHash);
+                System.out.println("Password verification result: " + result.verified);
+                return result.verified;
+            }
+            return false;
         } catch (SQLException e) {
+            System.err.println("Login verification error: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
     }
-
 
     public boolean insertUser(Person person) {
         connectToDatabase();
@@ -281,6 +317,7 @@ public class DbConnectivityClass {
     }
 
     public void deleteRecord(Person person) {
+        connectToDatabase();
         int id = person.getId();
         connectToDatabase();
         try {

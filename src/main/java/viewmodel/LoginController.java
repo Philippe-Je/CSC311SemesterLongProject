@@ -48,32 +48,76 @@ public class LoginController {
         fadeIn.play();
     }
 
+//    @FXML
+//    public void login(ActionEvent actionEvent) {
+//        String username = usernameTextField.getText().trim();
+//        String password = passwordField.getText().trim();
+//
+//        if (username.isEmpty() || password.isEmpty()) {
+//            updateStatusMessage("Please enter both username and password");
+//            return;
+//        }
+//
+//        try {
+//            if (verifyCredentials(username, password)) {
+//                UserSession userSession = UserSession.getInstance(username, "USER");
+//                userSession.saveCredentials(username, password);
+//                loadMainInterface(actionEvent);
+//            } else {
+//                updateStatusMessage("Invalid username or password");
+//            }
+//        } catch (Exception e) {
+//            updateStatusMessage("Login error: " + e.getMessage());
+//            e.printStackTrace();
+//        }
+//    }
     @FXML
     public void login(ActionEvent actionEvent) {
         String username = usernameTextField.getText().trim();
         String password = passwordField.getText().trim();
 
+        System.out.println("Login attempt:");
+        System.out.println("Username entered: " + username);
+        System.out.println("Password length: " + password.length());
+
         if (username.isEmpty() || password.isEmpty()) {
             updateStatusMessage("Please enter both username and password");
+            System.out.println("Login failed: Empty credentials");
             return;
         }
 
         try {
-            if (verifyCredentials(username, password)) {
-                UserSession userSession = UserSession.getInstance(username, password, "USER");
+            System.out.println("Attempting to verify credentials...");
+            boolean verified = verifyCredentials(username, password);
+            System.out.println("Credentials verification result: " + verified);
+
+            if (verified) {
+                System.out.println("Creating user session...");
+                UserSession userSession = UserSession.getInstance(username, "USER");
+                userSession.saveCredentials(username, password);
+                System.out.println("User session created successfully");
+
+                System.out.println("Loading main interface...");
                 loadMainInterface(actionEvent);
             } else {
+                System.out.println("Login failed: Invalid credentials");
                 updateStatusMessage("Invalid username or password");
             }
         } catch (Exception e) {
+            System.err.println("Login error occurred: " + e.getMessage());
             updateStatusMessage("Login error: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     private boolean verifyCredentials(String username, String password) {
-        return cnUtil.verifyUser(username, password);
+        System.out.println("Verifying credentials for username: " + username);
+        boolean result = cnUtil.verifyUser(username, password);
+        System.out.println("Verification result: " + result);
+        return result;
     }
+
+
 
     private void loadMainInterface(ActionEvent actionEvent) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("/view/db_interface_gui.fxml"));

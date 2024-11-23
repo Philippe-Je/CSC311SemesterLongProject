@@ -65,11 +65,14 @@ public class SignUpController {
                 );
 
                 if (success) {
-                    UserSession userSession = UserSession.getInstance(
-                            usernameField.getText(),
-                            passwordField.getText(),
-                            "USER"
-                    );
+                    System.out.println("New user registered successfully:");
+                    System.out.println("Username: " + usernameField.getText());
+                    System.out.println("Email: " + emailField.getText());
+                    System.out.println("First Name: " + firstNameField.getText());
+                    System.out.println("Last Name: " + lastNameField.getText());
+
+                    UserSession userSession = UserSession.getInstance(usernameField.getText(), "USER");
+                    userSession.saveCredentials(usernameField.getText(), passwordField.getText());
                     updateStatusMessage("Account created successfully!");
                     goBack(event);
                 } else {
