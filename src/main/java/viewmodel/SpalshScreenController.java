@@ -9,6 +9,6 @@ public class SpalshScreenController {
 
     @FXML
     protected void onButtonClick() {
-        welcomeText.setText("Welcome to JavaFX Application!");
+        welcomeText.setText("Welcome to Employee Data Management Application!");
     }
 }

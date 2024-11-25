@@ -9,8 +9,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-
-<VBox alignment="CENTER" maxWidth="400.0" spacing="9" styleClass="signup-container" stylesheets="@../css/signup.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="viewmodel.SignUpController">
+<VBox alignment="CENTER" maxHeight="400.0" maxWidth="200.0" spacing="9" styleClass="signup-container" stylesheets="@../css/signup.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="viewmodel.SignUpController">
     <padding>
         <Insets bottom="40" left="40" right="40" top="40" />
     </padding>

@@ -5,28 +5,28 @@ public class Person {
     private String firstName;
     private String lastName;
     private String department;
-    private String major;
+    private Double performanceRating;
     private String email;
     private String imageURL;
 
     public Person() {
     }
 
-    public Person(String firstName, String lastName, String department, String major, String email,  String imageURL) {
+    public Person(String firstName, String lastName, String department, Double performanceRating, String email, String imageURL) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.department = department;
-        this.major = major;
+        this.performanceRating = performanceRating;
         this.email = email;
         this.imageURL = imageURL;
     }
 
-    public Person(Integer id, String firstName, String lastName, String department, String major, String email,  String imageURL) {
+    public Person(Integer id, String firstName, String lastName, String department, Double performanceRating, String email, String imageURL) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.department = department;
-        this.major = major;
+        this.performanceRating = performanceRating;
         this.email = email;
         this.imageURL = imageURL;
     }
@@ -66,12 +66,12 @@ public class Person {
     }
 
 
-    public String getMajor() {
-        return major;
+    public void setPerformanceRating(Double performanceRating) {
+        this.performanceRating = performanceRating;
     }
 
-    public void setMajor(String major) {
-        this.major = major;
+    public Double getPerformanceRating() {
+        return performanceRating;
     }
 
 
@@ -99,9 +99,8 @@ public class Person {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", department='" + department + '\'' +
-                ", major='" + major + '\'' +
+                ", performanceRating=" + performanceRating +
                 ", email='" + email + '\'' +
                 '}';
     }
-
 }

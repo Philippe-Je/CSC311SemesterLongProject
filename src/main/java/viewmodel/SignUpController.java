@@ -140,8 +140,8 @@ public class SignUpController {
     public void goBack(ActionEvent event) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/view/login.fxml"));
-            Scene scene = new Scene(root, 900, 600);
-            scene.getStylesheets().add(getClass().getResource("/css/lightTheme.css").toExternalForm());
+            Scene scene = new Scene(root, 500, 600);
+            scene.getStylesheets().add(getClass().getResource("/css/darkTheme.css").toExternalForm());
             Stage window = (Stage) ((Node) event.getSource()).getScene().getWindow();
             window.setResizable(false);
             window.setScene(scene);

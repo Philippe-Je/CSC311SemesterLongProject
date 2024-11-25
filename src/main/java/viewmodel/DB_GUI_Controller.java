@@ -262,8 +262,8 @@ public class DB_GUI_Controller implements Initializable {
     protected void logOut(ActionEvent actionEvent) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/view/login.fxml"));
-            Scene scene = new Scene(root, 900, 600);
-            scene.getStylesheets().add(getClass().getResource("/css/lightTheme.css").getFile());
+            Scene scene = new Scene(root, 500, 600);
+            scene.getStylesheets().add(getClass().getResource("/css/darkTheme.css").getFile());
             Stage window = (Stage) menuBar.getScene().getWindow();
             window.setScene(scene);
             window.show();

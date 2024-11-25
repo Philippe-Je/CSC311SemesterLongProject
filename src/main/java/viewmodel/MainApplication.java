@@ -33,8 +33,9 @@ public class MainApplication extends Application {
     private void showScene1() {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/view/splashscreen.fxml"));
-            Scene scene = new Scene(root, 900, 600);
-            scene.getStylesheets().add(getClass().getResource("/css/lightTheme.css").toExternalForm());
+            Scene scene = new Scene(root, 500, 600);
+            scene.getStylesheets().clear(); // Clear existing stylesheets
+            scene.getStylesheets().add(getClass().getResource("/css/darkTheme.css").toExternalForm());
             primaryStage.setScene(scene);
             primaryStage.show();
             changeScene();
@@ -48,12 +49,15 @@ public class MainApplication extends Application {
             Parent newRoot = FXMLLoader.load(getClass().getResource("/view/login.fxml").toURI().toURL());
             Scene currentScene = primaryStage.getScene();
             Parent currentRoot = currentScene.getRoot();
-            currentScene.getStylesheets().add(getClass().getResource("/css/lightTheme.css").toExternalForm());
+            currentScene.getStylesheets().clear(); // Clear existing stylesheets
+            currentScene.getStylesheets().add(getClass().getResource("/css/darkTheme.css").toExternalForm());
             FadeTransition fadeOut = new FadeTransition(Duration.seconds(3), currentRoot);
             fadeOut.setFromValue(1);
             fadeOut.setToValue(0);
             fadeOut.setOnFinished(e -> {
-                Scene newScene = new Scene(newRoot, 900, 600);
+                Scene newScene = new Scene(newRoot, 500, 600);
+                // Add stylesheet to new scene
+                newScene.getStylesheets().add(getClass().getResource("/css/darkTheme.css").toExternalForm());
                 primaryStage.setScene(newScene);
                 primaryStage.show();
             });

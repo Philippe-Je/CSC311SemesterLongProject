@@ -48,29 +48,6 @@ public class LoginController {
         fadeIn.play();
     }
 
-//    @FXML
-//    public void login(ActionEvent actionEvent) {
-//        String username = usernameTextField.getText().trim();
-//        String password = passwordField.getText().trim();
-//
-//        if (username.isEmpty() || password.isEmpty()) {
-//            updateStatusMessage("Please enter both username and password");
-//            return;
-//        }
-//
-//        try {
-//            if (verifyCredentials(username, password)) {
-//                UserSession userSession = UserSession.getInstance(username, "USER");
-//                userSession.saveCredentials(username, password);
-//                loadMainInterface(actionEvent);
-//            } else {
-//                updateStatusMessage("Invalid username or password");
-//            }
-//        } catch (Exception e) {
-//            updateStatusMessage("Login error: " + e.getMessage());
-//            e.printStackTrace();
-//        }
-//    }
     @FXML
     public void login(ActionEvent actionEvent) {
         String username = usernameTextField.getText().trim();
@@ -123,7 +100,7 @@ public class LoginController {
     private void loadMainInterface(ActionEvent actionEvent) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("/view/db_interface_gui.fxml"));
         Scene scene = new Scene(root, 900, 600);
-        scene.getStylesheets().add(getClass().getResource("/css/lightTheme.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/css/darkTheme.css").toExternalForm());
         Stage window = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
         window.setScene(scene);
         window.show();
@@ -142,8 +119,8 @@ public class LoginController {
     public void signUp(ActionEvent actionEvent) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/view/signUp.fxml"));
-            Scene scene = new Scene(root, 900, 600);
-            scene.getStylesheets().add(getClass().getResource("/css/lightTheme.css").toExternalForm());
+            Scene scene = new Scene(root, 500, 600);
+            scene.getStylesheets().add(getClass().getResource("/css/darkTheme.css").toExternalForm());
             Stage window = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
             window.setScene(scene);
             window.show();
