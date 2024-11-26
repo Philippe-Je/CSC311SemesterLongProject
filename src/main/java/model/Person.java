@@ -12,7 +12,7 @@ public class Person {
     public Person() {
     }
 
-    public Person(String firstName, String lastName, String department, Double performanceRating, String email, String imageURL) {
+    public Person(String firstName, String lastName, String department, Double performanceRating, String email) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.department = department;
@@ -21,7 +21,7 @@ public class Person {
         this.imageURL = imageURL;
     }
 
-    public Person(Integer id, String firstName, String lastName, String department, Double performanceRating, String email, String imageURL) {
+    public Person(Integer id, String firstName, String lastName, String department, Double performanceRating, String email) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
