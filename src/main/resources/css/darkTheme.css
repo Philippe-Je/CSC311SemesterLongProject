@@ -4,6 +4,28 @@
     -fx-text-fill: #e0e0e0;
     -fx-font-family: "Segoe UI", Arial, sans-serif;
 }
+.about-text-area {
+    -fx-background-color: #1a1a1a;
+    -fx-text-fill: #e0e0e0;
+    -fx-font-size: 14px;
+    -fx-padding: 10px;
+    -fx-background-radius: 8px;
+    -fx-border-color: #3a3a3a;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 4, 0, 0, 1);
+}
+
+.title-label {
+    -fx-text-fill: #E5E510;
+    -fx-font-weight: bold;
+    -fx-font-size: 24px;
+    -fx-padding: 10px;
+    -fx-background-color: #242424;
+    -fx-background-radius: 8px;
+    -fx-border-color: #3a3a3a;
+    -fx-border-width: 1px;
+    -fx-effect: dropshadow(gaussian, rgba(229,229,16,0.2), 4, 0, 0, 1);
+}
 
 /* Button styles */
 .db_btn, .login-button {

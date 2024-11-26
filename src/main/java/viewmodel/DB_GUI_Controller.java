@@ -19,6 +19,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -387,6 +389,37 @@ public class DB_GUI_Controller implements Initializable {
             new Thread(uploadTask).start();
         }
     }
+
+    @FXML
+    private void handleEditShortcut() {
+        if (tv.getSelectionModel().getSelectedItem() != null) {
+            editRecord();
+        }
+    }
+
+    @FXML
+    private void handleDeleteShortcut() {
+        if (tv.getSelectionModel().getSelectedItem() != null) {
+            deleteRecord();
+        }
+    }
+    @FXML
+    private void handleCopyShortcut() {
+        Person selectedPerson = tv.getSelectionModel().getSelectedItem();
+        if (selectedPerson != null) {
+            String personInfo = selectedPerson.getFirstName() + " " + selectedPerson.getLastName() + ", " + selectedPerson.getDepartment();
+            Clipboard clipboard = Clipboard.getSystemClipboard();
+            ClipboardContent content = new ClipboardContent();
+            content.putString(personInfo);
+            clipboard.setContent(content);
+            updateStatusMessage("Person info copied to clipboard");
+        }
+    }
+    @FXML
+    private void handleClearShortcut() {
+        clearForm();
+    }
+
 
     private Task<Void> createUploadTask(File file) {
         return new Task<>() {

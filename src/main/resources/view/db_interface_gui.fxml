@@ -28,8 +28,6 @@
                     <menus>
                         <Menu mnemonicParsing="false" styleClass="menu_options" text="File">
                             <items>
-                                <MenuItem fx:id="newItem" mnemonicParsing="false" onAction="#addRecord" styleClass="menu_items" text="New Employee" />
-                                <MenuItem fx:id="ChangePic" mnemonicParsing="false" onAction="#showImage" styleClass="menu_items" text="Change Pic" />
                                 <MenuItem fx:id="logOut" mnemonicParsing="false" onAction="#logOut" styleClass="menu_items" text="Log out" />
                                 <MenuItem fx:id="importCSVMenuItem" mnemonicParsing="false" onAction="#importCSV" styleClass="menu_items" text="Import CSV" />
                                 <MenuItem fx:id="exportCSVMenuItem" mnemonicParsing="false" onAction="#exportCSV" styleClass="menu_items" text="Export CSV" />
@@ -38,10 +36,10 @@
                         </Menu>
                   <Menu mnemonicParsing="false" styleClass="menu_options" text="Edit">
                      <items>
-                        <MenuItem fx:id="editItem" mnemonicParsing="true" styleClass="menu_items" text="_Edit       Ctrl+E" />
-                        <MenuItem fx:id="deleteItem" mnemonicParsing="true" styleClass="menu_items" text="_Delete        Ctrl+D" />
-                        <MenuItem fx:id="ClearItem" mnemonicParsing="false" styleClass="menu_items" text="Clea_r        Ctrl+R" />
-                        <MenuItem fx:id="CopyItem" mnemonicParsing="false" styleClass="menu_items" text="_Copy       Ctrl+C" />
+                         <MenuItem fx:id="editItem" accelerator="Ctrl+E" mnemonicParsing="true" onAction="#handleEditShortcut" styleClass="menu_items" text="_Edit" />
+                         <MenuItem fx:id="deleteItem" accelerator="Ctrl+D" mnemonicParsing="true" onAction="#handleDeleteShortcut" styleClass="menu_items" text="_Delete" />
+                         <MenuItem fx:id="ClearItem" accelerator="Ctrl+R" mnemonicParsing="false" onAction="#handleClearShortcut" styleClass="menu_items" text="Clea_r" />
+                         <MenuItem fx:id="CopyItem" accelerator="Ctrl+C" mnemonicParsing="false" onAction="#handleCopyShortcut" styleClass="menu_items" text="_Copy" />
                      </items>
                   </Menu>
                         <Menu mnemonicParsing="false" styleClass="menu_options" text="Theme">
@@ -52,7 +50,6 @@
                         </Menu>
                         <Menu mnemonicParsing="false" styleClass="menu_options" text="Help">
                             <items>
-                                <MenuItem mnemonicParsing="false" onAction="#displayAbout" styleClass="menu_items" text="Help" />
                         <MenuItem mnemonicParsing="false" onAction="#displayAbout" styleClass="menu_items" text="About" />
                             </items>
                         </Menu>
@@ -64,9 +61,9 @@
                     <children>
                         <AnchorPane prefHeight="215.0" prefWidth="88.0">
                             <children>
-                                <ImageView fx:id="img_view" fitHeight="111.0" fitWidth="122.0" layoutX="10.0" layoutY="11.0" onMouseClicked="#showImage" pickOnBounds="true" preserveRatio="true" styleClass="image_view">
+                                <ImageView fx:id="img_view" fitHeight="111.0" fitWidth="122.0" layoutX="10.0" layoutY="11.0" pickOnBounds="true" preserveRatio="true" styleClass="image_view">
                                     <image>
-                                        <Image url="@../images/profile.png" />
+                                        <Image url="@../images/manager.png" />
                                     </image>
                                 </ImageView>
                             </children>

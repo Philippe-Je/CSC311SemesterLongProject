@@ -26,7 +26,7 @@ public class MainApplication extends Application {
         this.primaryStage = primaryStage;
         this.primaryStage.setResizable(false);
         primaryStage.getIcons().add(icon);
-        primaryStage.setTitle("Database Project");
+        primaryStage.setTitle("Employee Database Manager");
         showScene1();
     }
 
