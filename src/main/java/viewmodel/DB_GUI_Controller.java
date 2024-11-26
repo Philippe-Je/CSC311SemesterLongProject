@@ -24,6 +24,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import model.Person;
@@ -302,8 +303,21 @@ public class DB_GUI_Controller implements Initializable {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/view/about.fxml"));
             Stage stage = new Stage();
-            Scene scene = new Scene(root, 600, 500);
+            Scene scene = new Scene(root, 600, 400);
+
+            // Determine the current theme
+            boolean isDarkTheme = menuBar.getScene().getStylesheets().contains(getClass().getResource("/css/darkTheme.css").toExternalForm());
+
+            // Apply the appropriate CSS
+            if (isDarkTheme) {
+                scene.getStylesheets().add(getClass().getResource("/css/aboutDark.css").toExternalForm());
+            } else {
+                scene.getStylesheets().add(getClass().getResource("/css/aboutLight.css").toExternalForm());
+            }
+
             stage.setScene(scene);
+            stage.setTitle("About Employee Data Management System");
+            stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
         } catch (Exception e) {
             e.printStackTrace();

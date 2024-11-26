@@ -1,35 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextArea?>
 <?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.text.Font?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" styleClass="anchor_pane" xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" styleClass="about-pane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Label alignment="TOP_LEFT" layoutX="20.0" layoutY="20.0" prefHeight="44.0" prefWidth="560.0" text="Employee Data Management System" styleClass="title-label">
-         <font>
-            <Font name="System Bold" size="24.0" />
-         </font>
+      <Label alignment="TOP_LEFT" layoutX="20.0" layoutY="20.0" prefHeight="44.0" prefWidth="560.0" styleClass="about-title" text="Employee Data Management System">
       </Label>
-      <TextArea layoutX="20.0" layoutY="70.0" prefHeight="310.0" prefWidth="560.0" wrapText="true" editable="false" styleClass="about-text-area">
-         <font>
-            <Font size="14.0" />
-         </font>
-         <text>This is a comprehensive Employee Data Management System designed to streamline HR processes and enhance organizational efficiency.
-
-            Key Features:
-            • Secure employee data storage and retrieval
-            • Performance rating tracking
-            • Department-wise employee categorization
-            • CSV import/export functionality
-            • User-friendly interface with light and dark themes
-
-            This application is built using JavaFX and follows modern software development practices to ensure reliability, scalability, and ease of use.
-
-            Version: 1.0
-            Developer: Philippe Jean
-            </text>
-      </TextArea>
+      <VBox layoutX="20.0" layoutY="70.0" prefHeight="310.0" prefWidth="560.0" styleClass="about-text-area" spacing="10">
+         <padding>
+            <Insets top="10" right="10" bottom="10" left="10"/>
+         </padding>
+         <children>
+            <Label text="This is a Employee Data Management System designed to enhance organizational efficiency." wrapText="true"/>
+            <Label text="Key Features:" style="-fx-font-weight: bold;"/>
+            <Label text="• Secure employee data storage and retrieval" />
+            <Label text="• Performance rating tracking" />
+            <Label text="• Department-wise employee categorization" />
+            <Label text="• CSV import/export functionality" />
+            <Label text="• User-friendly interface with light and dark themes" />
+            <Label text="This application is built using JavaFX and follows modern software development practices to ensure reliability, scalability, and ease of use." wrapText="true"/>
+            <Label text="Version: 1.0" style="-fx-font-weight: bold;"/>
+            <Label text="Developer: Philippe Jean" style="-fx-font-weight: bold;"/>
+         </children>
+      </VBox>
    </children>
 </AnchorPane>
