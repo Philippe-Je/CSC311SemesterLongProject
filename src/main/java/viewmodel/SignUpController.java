@@ -128,10 +128,14 @@ public class SignUpController {
 
     private void updateStatusMessage(String message) {
         statusLabel.setText(message);
+        statusLabel.setOpacity(1);
         FadeTransition fadeOut = new FadeTransition(Duration.seconds(3), statusLabel);
         fadeOut.setFromValue(1.0);
         fadeOut.setToValue(0.0);
-        fadeOut.setOnFinished(event -> statusLabel.setText(""));
+        fadeOut.setOnFinished(event -> {
+            statusLabel.setText("");
+            statusLabel.setOpacity(0);
+        });
         fadeOut.play();
     }
 

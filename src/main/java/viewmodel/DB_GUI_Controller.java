@@ -77,7 +77,7 @@ public class DB_GUI_Controller implements Initializable {
 
     );
 
-    private static final Pattern PERFORMANCE_RATING_PATTERN = Pattern.compile("^\\d+(\\.\\d+)?$");
+    private static final Pattern PERFORMANCE_RATING_PATTERN = Pattern.compile("^(10(\\.0{1,2})?|[1-9](\\.\\d{1,2})?)$");
 
     public void initialize(URL url, ResourceBundle resourceBundle) {
         try {
@@ -216,10 +216,14 @@ public class DB_GUI_Controller implements Initializable {
 
     private void updateStatusMessage(String message) {
         statusLabel.setText(message);
+        statusLabel.setOpacity(1);
         FadeTransition fadeOut = new FadeTransition(Duration.seconds(3), statusLabel);
         fadeOut.setFromValue(1.0);
         fadeOut.setToValue(0.0);
-        fadeOut.setOnFinished(event -> statusLabel.setText(""));
+        fadeOut.setOnFinished(event -> {
+            statusLabel.setText("");
+            statusLabel.setOpacity(0);
+        });
         fadeOut.play();
     }
 
@@ -352,6 +356,17 @@ public class DB_GUI_Controller implements Initializable {
             }
         }
     }
+    private void updateProgressBar(double progress) {
+        progressBar.progressProperty().unbind(); // Unbind before setting directly
+        progressBar.setProgress(progress);
+        if (progress >= 1.0) {
+            FadeTransition fadeOut = new FadeTransition(Duration.seconds(1), progressBar);
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+            fadeOut.setOnFinished(event -> progressBar.setOpacity(0));
+            fadeOut.play();
+        }
+    }
 
 
     @FXML
@@ -359,13 +374,21 @@ public class DB_GUI_Controller implements Initializable {
         File file = (new FileChooser()).showOpenDialog(img_view.getScene().getWindow());
         if (file != null) {
             img_view.setImage(new Image(file.toURI().toString()));
-            Task<Void> uploadTask = createUploadTask(file, progressBar);
+            Task<Void> uploadTask = createUploadTask(file);
+
+            // Unbind any previous binding before setting new one
+            progressBar.progressProperty().unbind();
+            progressBar.setOpacity(1);
             progressBar.progressProperty().bind(uploadTask.progressProperty());
+
+            uploadTask.setOnSucceeded(event -> updateProgressBar(1.0));
+            uploadTask.setOnFailed(event -> updateProgressBar(0));
+
             new Thread(uploadTask).start();
         }
     }
 
-    private Task<Void> createUploadTask(File file, ProgressBar progressBar) {
+    private Task<Void> createUploadTask(File file) {
         return new Task<>() {
             @Override
             protected Void call() throws Exception {
@@ -383,9 +406,9 @@ public class DB_GUI_Controller implements Initializable {
                         blobOutputStream.write(buffer, 0, bytesRead);
                         uploadedBytes += bytesRead;
 
-                        // Calculate and update progress as a percentage
-                        int progress = (int) ((double) uploadedBytes / fileSize * 100);
-                        updateProgress(progress, 100);
+                        // Update progress
+                        double progress = (double) uploadedBytes / fileSize;
+                        updateProgress(progress, 1.0);
                     }
                 }
 
@@ -457,7 +480,6 @@ public class DB_GUI_Controller implements Initializable {
             e.printStackTrace();
         }
     }
-
     public void showSomeone() {
         Dialog<Results> dialog = new Dialog<>();
         dialog.setTitle("New User");

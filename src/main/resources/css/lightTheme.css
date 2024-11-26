@@ -155,17 +155,30 @@
     -fx-text-fill: white;
 }
 
-/* Status label styles */
 .status-label {
-    -fx-text-fill: #4CAF50;
+    -fx-text-fill: #333333;
     -fx-font-weight: bold;
     -fx-font-size: 14px;
     -fx-padding: 8px 16px;
-    -fx-background-color: white;
+    -fx-background-color: #f9f9f9;
     -fx-background-radius: 8px;
-    -fx-border-color: #E0E0E0;
+    -fx-border-color: #ddd;
     -fx-border-radius: 8px;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 1);
+    -fx-opacity: 0;
+}
+.progress-bar {
+    -fx-opacity: 0;
+}
+
+.progress-bar > .bar {
+    -fx-background-color: #a73;
+    -fx-background-radius: 4px;
+}
+
+.progress-bar > .track {
+    -fx-background-color: #f0f0f0;
+    -fx-background-radius: 4px;
 }
 
 /* Image view styles */

@@ -159,18 +159,31 @@
 .combo-box-popup .list-cell:selected {
     -fx-background-color: #6622CC;
 }
+.progress-bar {
+    -fx-opacity: 0;
+}
 
-/* Status label styles */
+.progress-bar > .bar {
+    -fx-background-color: #E5E510;
+    -fx-background-radius: 4px;
+}
+
+.progress-bar > .track {
+    -fx-background-color: #2a2a2a;
+    -fx-background-radius: 4px;
+}
+
 .status-label {
     -fx-text-fill: #E5E510;
     -fx-font-weight: bold;
     -fx-font-size: 14px;
     -fx-padding: 8px 16px;
-    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-background-color: rgba(255, 255, 255, 0.1);
     -fx-background-radius: 8px;
     -fx-border-color: rgba(229,229,16,0.3);
     -fx-border-radius: 8px;
     -fx-effect: dropshadow(gaussian, rgba(229,229,16,0.2), 4, 0, 0, 1);
+    -fx-opacity: 0;
 }
 
 /* Image view styles */

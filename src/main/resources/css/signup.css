@@ -36,13 +36,15 @@
 
 .status-label {
     -fx-text-fill: #E5E510;
-    -fx-font-size: 14px;
     -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 8px 16px;
     -fx-background-color: rgba(255, 255, 255, 0.1);
     -fx-background-radius: 8px;
-    -fx-padding: 8px 16px;
-    -fx-alignment: center;
-    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 4, 0, 0, 0);
+    -fx-border-color: rgba(229,229,16,0.3);
+    -fx-border-radius: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(229,229,16,0.2), 4, 0, 0, 1);
+    -fx-opacity: 0;
 }
 
 
