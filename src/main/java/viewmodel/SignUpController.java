@@ -8,15 +8,25 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
+import javafx.stage.FileChooser;
 
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 import service.UserSession;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.regex.Pattern;
 
+/**
+ * Controller class for the sign-up view.
+ * Handles user registration and input validation.
+ */
 public class SignUpController {
 
     @FXML
@@ -31,7 +41,12 @@ public class SignUpController {
     private PasswordField passwordField;
     @FXML
     private Label statusLabel;
+    @FXML
+    private ImageView profileImageView;
+    @FXML
+    private Button selectImageButton;
 
+    // Regular expression patterns for input validation
     private static final Pattern NAME_PATTERN = Pattern.compile("^[A-Za-z\\s]{1,50}$");
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
             "^[A-Za-z0-9._%+-]+@(gmail|yahoo|hotmail|outlook|aol|icloud|protonmail|zoho|yandex|mail)\\.(com|edu|gov|org|net|io|co)$",
@@ -40,18 +55,32 @@ public class SignUpController {
     private static final Pattern USERNAME_PATTERN = Pattern.compile("^[A-Za-z0-9_]{4,20}$");
 
     private final DbConnectivityClass cnUtil = new DbConnectivityClass();
+    private byte[] profileImageData;
 
+    /**
+     * Initializes the controller.
+     * Sets up the event handler for the select image button.
+     */
+    @FXML
+    public void initialize() {
+        selectImageButton.setOnAction(event -> selectProfileImage());
+    }
+
+    /**
+     * Handles the sign-up process when the sign-up button is clicked.
+     * Validates input fields and registers the user if all validations pass.
+     *
+     * @param event The action event triggered by clicking the sign-up button.
+     */
     @FXML
     public void handleSignUp(ActionEvent event) {
         if (validateFields()) {
             try {
-                // Check for existing username first
                 if (cnUtil.usernameExists(usernameField.getText())) {
                     updateStatusMessage("Username already exists. Please choose a different username.");
                     return;
                 }
 
-                // Check for existing email
                 if (cnUtil.emailExists(emailField.getText())) {
                     updateStatusMessage("Email already exists. Please use a different email address.");
                     return;
@@ -62,7 +91,8 @@ public class SignUpController {
                         lastNameField.getText(),
                         usernameField.getText(),
                         emailField.getText(),
-                        passwordField.getText()
+                        passwordField.getText(),
+                        profileImageData
                 );
 
                 if (success) {
@@ -86,6 +116,33 @@ public class SignUpController {
         }
     }
 
+    /**
+     * Opens a file chooser dialog for selecting a profile image.
+     * Updates the profile image view with the selected image.
+     */
+    private void selectProfileImage() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select Profile Picture");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Image Files", "*.png", "*.jpg", "*.gif")
+        );
+        File selectedFile = fileChooser.showOpenDialog(null);
+        if (selectedFile != null) {
+            try {
+                profileImageData = Files.readAllBytes(selectedFile.toPath());
+                Image image = new Image(selectedFile.toURI().toString());
+                profileImageView.setImage(image);
+            } catch (IOException e) {
+                updateStatusMessage("Error reading image file: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Validates all input fields.
+     *
+     * @return true if all fields are valid, false otherwise.
+     */
     private boolean validateFields() {
         if (isEmptyField(firstNameField) || isEmptyField(lastNameField) ||
                 isEmptyField(usernameField) || isEmptyField(emailField) ||
@@ -122,10 +179,21 @@ public class SignUpController {
         return true;
     }
 
+    /**
+     * Checks if a text field is empty.
+     *
+     * @param field The text field to check.
+     * @return true if the field is empty, false otherwise.
+     */
     private boolean isEmptyField(TextField field) {
         return field.getText().trim().isEmpty();
     }
 
+    /**
+     * Updates the status message with a fade-out effect.
+     *
+     * @param message The message to display.
+     */
     private void updateStatusMessage(String message) {
         statusLabel.setText(message);
         statusLabel.setOpacity(1);
@@ -139,7 +207,11 @@ public class SignUpController {
         fadeOut.play();
     }
 
-
+    /**
+     * Navigates back to the login screen.
+     *
+     * @param event The action event triggered by clicking the back button.
+     */
     @FXML
     public void goBack(ActionEvent event) {
         try {

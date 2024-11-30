@@ -17,14 +17,26 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import service.UserSession;
 
+/**
+ * Controller class for the login view.
+ * Handles user authentication and navigation to the main interface.
+ */
 public class LoginController {
-    @FXML private VBox loginContainer;
-    @FXML private TextField usernameTextField;
-    @FXML private PasswordField passwordField;
-    @FXML private Label statusLabel;
+    @FXML
+    private VBox loginContainer;
+    @FXML
+    private TextField usernameTextField;
+    @FXML
+    private PasswordField passwordField;
+    @FXML
+    private Label statusLabel;
 
     private final DbConnectivityClass cnUtil = new DbConnectivityClass();
 
+    /**
+     * Initializes the controller.
+     * Sets up the background if the login container is available.
+     */
     @FXML
     public void initialize() {
         if (loginContainer != null) {
@@ -32,6 +44,9 @@ public class LoginController {
         }
     }
 
+    /**
+     * Sets the background image for the login container and applies a fade-in effect.
+     */
     private void setBackground() {
         BackgroundImage backgroundImage = new BackgroundImage(
                 new Image("https://edencoding.com/wp-content/uploads/2021/03/layer_06_1920x1080.png", true),
@@ -48,6 +63,12 @@ public class LoginController {
         fadeIn.play();
     }
 
+    /**
+     * Handles the login process when the login button is clicked.
+     * Verifies user credentials and navigates to the main interface if successful.
+     *
+     * @param actionEvent The event triggered by clicking the login button.
+     */
     @FXML
     public void login(ActionEvent actionEvent) {
         String username = usernameTextField.getText().trim();
@@ -88,6 +109,13 @@ public class LoginController {
         }
     }
 
+    /**
+     * Verifies user credentials against the database.
+     *
+     * @param username The entered username.
+     * @param password The entered password.
+     * @return true if credentials are valid, false otherwise.
+     */
     private boolean verifyCredentials(String username, String password) {
         System.out.println("Verifying credentials for username: " + username);
         boolean result = cnUtil.verifyUser(username, password);
@@ -95,17 +123,26 @@ public class LoginController {
         return result;
     }
 
-
-
+    /**
+     * Loads the main interface of the application.
+     *
+     * @param actionEvent The event that triggered this method.
+     * @throws Exception If there's an error loading the main interface.
+     */
     private void loadMainInterface(ActionEvent actionEvent) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("/view/db_interface_gui.fxml"));
-        Scene scene = new Scene(root, 900, 600);
+        Scene scene = new Scene(root, 950, 600);
         scene.getStylesheets().add(getClass().getResource("/css/darkTheme.css").toExternalForm());
         Stage window = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
         window.setScene(scene);
         window.show();
     }
 
+    /**
+     * Updates the status message with a fade-out effect.
+     *
+     * @param message The message to display.
+     */
     private void updateStatusMessage(String message) {
         statusLabel.setText(message);
         statusLabel.setOpacity(1);
@@ -119,11 +156,17 @@ public class LoginController {
         fadeOut.play();
     }
 
+    /**
+     * Handles the sign-up process when the sign-up button is clicked.
+     * Loads the sign-up view.
+     *
+     * @param actionEvent The event triggered by clicking the sign-up button.
+     */
     @FXML
     public void signUp(ActionEvent actionEvent) {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/view/signUp.fxml"));
-            Scene scene = new Scene(root, 500, 600);
+            Scene scene = new Scene(root, 500, 650);
             scene.getStylesheets().add(getClass().getResource("/css/darkTheme.css").toExternalForm());
             Stage window = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
             window.setScene(scene);

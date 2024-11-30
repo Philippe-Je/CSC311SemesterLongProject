@@ -7,21 +7,50 @@ import service.MyLogger;
 import at.favre.lib.crypto.bcrypt.BCrypt;
 
 import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
 
+/**
+ * This class handles all database operations for the Employee Data Management System.
+ * It provides methods for connecting to the database, retrieving data, and performing CRUD operations.
+ */
 public class DbConnectivityClass {
 
+    /**
+     * The name of the database
+     */
     final static String DB_NAME = "CSC311_BD_TEMP";
+    /**
+     * Logger for recording operations
+     */
     MyLogger lg = new MyLogger();
-    final static String SQL_SERVER_URL = "jdbc:mysql://csc311jeanserver.mysql.database.azure.com/";//update this server name
-    final static String DB_URL = "jdbc:mysql://csc311jeanserver.mysql.database.azure.com/" + DB_NAME;//update this database name
-    final static String USERNAME = "philippejean0429";// update this username
+    /**
+     * The URL of the SQL server
+     */
+    final static String SQL_SERVER_URL = "jdbc:mysql://csc311jeanserver.mysql.database.azure.com/";
+    /**
+     * The URL of the database
+     */
+    final static String DB_URL = "jdbc:mysql://csc311jeanserver.mysql.database.azure.com/" + DB_NAME;
+    /**
+     * The username for database access
+     */
+    final static String USERNAME = "philippejean0429";
+    /**
+     * The password for database access
+     */
     final static String PASSWORD = "Cscserver0429";// update this password
 
-
+    /**
+     * Observable list to store Person objects
+     */
     private final ObservableList<Person> data = FXCollections.observableArrayList();
 
-
-
+    /**
+     * Connects to the database and creates necessary tables if they don't exist.
+     *
+     * @return true if there are registered users in the database, false otherwise
+     */
     public boolean connectToDatabase() {
         boolean hasRegistredUsers = false;
 
@@ -47,7 +76,7 @@ public class DbConnectivityClass {
                     "department VARCHAR(200)," +
                     "performance_rating DOUBLE," +
                     "email VARCHAR(200) NOT NULL UNIQUE," +
-                    "imageURL VARCHAR(200))";
+                    "profile_picture LONGBLOB)";
             statement.executeUpdate(sql);
 
             //check if we have users in the table users
@@ -71,11 +100,16 @@ public class DbConnectivityClass {
         return hasRegistredUsers;
     }
 
+    /**
+     * Retrieves all user data from the database.
+     *
+     * @return An ObservableList of Person objects representing all users
+     */
     public ObservableList<Person> getData() {
         connectToDatabase();
         try {
             Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
-            String sql = "SELECT * FROM users ";
+            String sql = "SELECT * FROM users";
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (!resultSet.isBeforeFirst()) {
@@ -88,8 +122,11 @@ public class DbConnectivityClass {
                 String department = resultSet.getString("department");
                 Double performanceRating = resultSet.getDouble("performance_rating");
                 String email = resultSet.getString("email");
-                String imageURL = resultSet.getString("imageURL");
-                data.add(new Person(id, first_name, last_name, department, performanceRating, email));
+                byte[] profilePicture = resultSet.getBytes("profile_picture");
+
+                Person person = new Person(id, first_name, last_name, department, performanceRating, email);
+                person.setProfilePicture(profilePicture);
+                data.add(person);
             }
             preparedStatement.close();
             conn.close();
@@ -99,7 +136,18 @@ public class DbConnectivityClass {
         return data;
     }
 
-    public boolean registerUser(String firstName, String lastName, String username, String email, String password) {
+    /**
+     * Registers a new user in the database.
+     *
+     * @param firstName      The first name of the user
+     * @param lastName       The last name of the user
+     * @param username       The username of the user
+     * @param email          The email of the user
+     * @param password       The password of the user
+     * @param profilePicture The profile picture of the user as a byte array
+     * @return true if registration is successful, false otherwise
+     */
+    public boolean registerUser(String firstName, String lastName, String username, String email, String password, byte[] profilePicture) {
         connectToDatabase();
         Connection conn = null;
         PreparedStatement preparedStatement = null;
@@ -111,16 +159,21 @@ public class DbConnectivityClass {
                 return false;
             }
 
-            String sql = "INSERT INTO users (first_name, last_name, username, email, password) VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO users (first_name, last_name, username, email, password, profile_picture) VALUES (?, ?, ?, ?, ?, ?)";
             preparedStatement = conn.prepareStatement(sql);
             preparedStatement.setString(1, firstName);
             preparedStatement.setString(2, lastName);
             preparedStatement.setString(3, username);
             preparedStatement.setString(4, email);
 
-            // Use the correct BCrypt method to hash the password
             String hashedPassword = BCrypt.withDefaults().hashToString(12, password.toCharArray());
             preparedStatement.setString(5, hashedPassword);
+
+            if (profilePicture != null) {
+                preparedStatement.setBytes(6, profilePicture);
+            } else {
+                preparedStatement.setNull(6, java.sql.Types.BLOB);
+            }
 
             int affectedRows = preparedStatement.executeUpdate();
             conn.commit();
@@ -152,6 +205,13 @@ public class DbConnectivityClass {
             }
         }
     }
+
+    /**
+     * Checks if a username already exists in the database.
+     *
+     * @param username The username to check
+     * @return true if the username exists, false otherwise
+     */
     public boolean usernameExists(String username) {
         connectToDatabase();
         try {
@@ -171,6 +231,32 @@ public class DbConnectivityClass {
         }
     }
 
+    /**
+     * Retrieves the count of employees for each department.
+     *
+     * @return A Map where the key is the department name and the value is the number of employees in that department
+     */
+    public Map<String, Integer> getEmployeeCountByDepartment() {
+        Map<String, Integer> departmentCounts = new HashMap<>();
+        try (Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
+             PreparedStatement stmt = conn.prepareStatement("SELECT department, COUNT(*) as count FROM users GROUP BY department")) {
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                String department = rs.getString("department");
+                int count = rs.getInt("count");
+                departmentCounts.put(department, count);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return departmentCounts;
+    }
+
+    /**
+     * Queries users by their last name and logs the results.
+     *
+     * @param name The last name to search for
+     */
     public void queryUserByLastName(String name) {
         connectToDatabase();
         try {
@@ -187,9 +273,11 @@ public class DbConnectivityClass {
                 String last_name = resultSet.getString("last_name");
                 String department = resultSet.getString("department");
                 double performanceRating = resultSet.getDouble("performance_rating");
+                byte[] profilePicture = resultSet.getBytes("profile_picture");
 
                 lg.makeLog("ID: " + id + ", Name: " + first_name + " " + last_name +
-                        ", Department: " + department + ", Performance Rating: " + performanceRating);
+                        ", Department: " + department + ", Performance Rating: " + performanceRating +
+                        ", Has Profile Picture: " + (profilePicture != null && profilePicture.length > 0));
             }
             preparedStatement.close();
             conn.close();
@@ -198,6 +286,12 @@ public class DbConnectivityClass {
         }
     }
 
+    /**
+     * Checks if an email already exists in the database.
+     *
+     * @param email The email to check
+     * @return true if the email exists, false otherwise
+     */
     public boolean emailExists(String email) {
         connectToDatabase();
         try {
@@ -217,6 +311,9 @@ public class DbConnectivityClass {
         }
     }
 
+    /**
+     * Lists all users in the database and logs their details.
+     */
     public void listAllUsers() {
         connectToDatabase();
         try {
@@ -233,10 +330,11 @@ public class DbConnectivityClass {
                 String department = resultSet.getString("department");
                 double performanceRating = resultSet.getDouble("performance_rating");
                 String email = resultSet.getString("email");
+                byte[] profilePicture = resultSet.getBytes("profile_picture");
 
                 lg.makeLog("ID: " + id + ", Name: " + first_name + " " + last_name +
                         ", Department: " + department + ", Performance Rating: " + performanceRating +
-                        ", Email: " + email);
+                        ", Email: " + email + ", Has Profile Picture: " + (profilePicture != null && profilePicture.length > 0));
             }
 
             preparedStatement.close();
@@ -246,7 +344,13 @@ public class DbConnectivityClass {
         }
     }
 
-
+    /**
+     * Verifies a user's credentials.
+     *
+     * @param username The username to verify
+     * @param password The password to verify
+     * @return true if the credentials are valid, false otherwise
+     */
     public boolean verifyUser(String username, String password) {
         connectToDatabase();
         try {
@@ -272,6 +376,12 @@ public class DbConnectivityClass {
         }
     }
 
+    /**
+     * Inserts a new user into the database.
+     *
+     * @param person The Person object containing user details
+     * @return true if the insertion was successful, false otherwise
+     */
     public boolean insertUser(Person person) {
         connectToDatabase();
         try {
@@ -279,14 +389,14 @@ public class DbConnectivityClass {
                 return false;
             }
             Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
-            String sql = "INSERT INTO users (first_name, last_name, department, performance_rating, email, imageURL) VALUES (?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO users (first_name, last_name, department, performance_rating, email, profile_picture) VALUES (?, ?, ?, ?, ?, ?)";
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
             preparedStatement.setString(1, person.getFirstName());
             preparedStatement.setString(2, person.getLastName());
             preparedStatement.setString(3, person.getDepartment());
             preparedStatement.setDouble(4, person.getPerformanceRating());
             preparedStatement.setString(5, person.getEmail());
-            preparedStatement.setString(6, person.getImageURL());
+            preparedStatement.setBytes(6, person.getProfilePicture());
             int row = preparedStatement.executeUpdate();
             preparedStatement.close();
             conn.close();
@@ -297,18 +407,24 @@ public class DbConnectivityClass {
         }
     }
 
+    /**
+     * Edits an existing user's information in the database.
+     *
+     * @param id The ID of the user to edit
+     * @param p  The Person object containing updated user details
+     */
     public void editUser(int id, Person p) {
         connectToDatabase();
         try {
             Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
-            String sql = "UPDATE users SET first_name=?, last_name=?, department=?, performance_rating=?, email=?, imageURL=? WHERE id=?";
+            String sql = "UPDATE users SET first_name=?, last_name=?, department=?, performance_rating=?, email=?, profile_picture=? WHERE id=?";
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
             preparedStatement.setString(1, p.getFirstName());
             preparedStatement.setString(2, p.getLastName());
             preparedStatement.setString(3, p.getDepartment());
             preparedStatement.setDouble(4, p.getPerformanceRating());
             preparedStatement.setString(5, p.getEmail());
-            preparedStatement.setString(6, p.getImageURL());
+            preparedStatement.setBytes(6, p.getProfilePicture());
             preparedStatement.setInt(7, id);
             preparedStatement.executeUpdate();
             preparedStatement.close();
@@ -318,6 +434,11 @@ public class DbConnectivityClass {
         }
     }
 
+    /**
+     * Deletes a user record from the database.
+     *
+     * @param person The Person object representing the user to delete
+     */
     public void deleteRecord(Person person) {
         connectToDatabase();
         int id = person.getId();
@@ -335,7 +456,78 @@ public class DbConnectivityClass {
         }
     }
 
-    //Method to retrieve id from database where it is auto-incremented.
+    /**
+     * Uploads a profile picture for a user.
+     *
+     * @param userName    The first name of the user
+     * @param pictureData The profile picture data as a byte array
+     */
+    public void uploadProfilePicture(String userName, byte[] pictureData) {
+        try (Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
+             PreparedStatement preparedStatement = conn.prepareStatement(
+                     "UPDATE users SET profile_picture = ? WHERE first_name = ?")) {
+            preparedStatement.setBytes(1, pictureData);
+            preparedStatement.setString(2, userName);
+            int updatedRows = preparedStatement.executeUpdate();
+            if (updatedRows == 0) {
+                System.out.println("No user found with the name: " + userName);
+            } else {
+                System.out.println("Profile picture updated successfully for user: " + userName);
+            }
+        } catch (SQLException e) {
+            System.err.println("Error uploading profile picture: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Deletes the profile picture of a user.
+     *
+     * @param userName The first name of the user
+     * @return true if the deletion was successful, false otherwise
+     */
+    public boolean deleteProfilePicture(String userName) {
+        try (Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
+             PreparedStatement preparedStatement = conn.prepareStatement(
+                     "UPDATE users SET profile_picture = NULL WHERE first_name = ?")) {
+            preparedStatement.setString(1, userName);
+            int updatedRows = preparedStatement.executeUpdate();
+            return updatedRows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Retrieves the profile picture of a user.
+     *
+     * @param userName The first name of the user
+     * @return The profile picture as a byte array, or null if not found
+     */
+    public byte[] getProfilePicture(String userName) {
+        try (Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
+             PreparedStatement preparedStatement = conn.prepareStatement(
+                     "SELECT profile_picture FROM users WHERE first_name = ?")) {
+            preparedStatement.setString(1, userName);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getBytes("profile_picture");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error retrieving profile picture: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * Retrieves the auto-incremented ID for a newly inserted user.
+     *
+     * @param p The Person object representing the user
+     * @return The auto-incremented ID
+     */
     public int retrieveId(Person p) {
         connectToDatabase();
         int id;

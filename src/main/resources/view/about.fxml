@@ -7,7 +7,7 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" styleClass="about-pane" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Label alignment="TOP_LEFT" layoutX="20.0" layoutY="20.0" prefHeight="44.0" prefWidth="560.0" styleClass="about-title" text="Employee Data Management System">
+      <Label alignment="TOP_LEFT" layoutX="20.0" layoutY="20.0" prefHeight="50.00" prefWidth="560.0" styleClass="about-title" text="Employee Data Management System">
       </Label>
       <VBox layoutX="20.0" layoutY="70.0" prefHeight="310.0" prefWidth="560.0" styleClass="about-text-area" spacing="10">
          <padding>

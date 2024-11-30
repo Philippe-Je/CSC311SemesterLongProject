@@ -54,6 +54,31 @@
     -fx-scale-x: 0.98;
     -fx-scale-y: 0.98;
 }
+.small_btn {
+    -fx-background-color: #a73;
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+    -fx-min-width: 100px;
+    -fx-min-height: 30px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 3, 0, 0, 1);
+}
+
+.small_btn:hover {
+    -fx-background-color: #b84;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 4, 0, 0, 1);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.small_btn:pressed {
+    -fx-background-color: #962;
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
 
 /* Pane styles */
 .anchor_pane {

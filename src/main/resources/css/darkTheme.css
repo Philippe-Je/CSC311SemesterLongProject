@@ -5,6 +5,7 @@
     -fx-font-family: "Segoe UI", Arial, sans-serif;
 }
 
+
 /* Button styles */
 .db_btn, .login-button {
     -fx-background-color: #E5E510;
@@ -27,6 +28,31 @@
 }
 
 .db_btn:pressed, .login-button:pressed {
+    -fx-background-color: #CCCC00;
+    -fx-scale-x: 0.98;
+    -fx-scale-y: 0.98;
+}
+.small_btn {
+    -fx-background-color: #E5E510;
+    -fx-text-fill: #1a1a1a;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 6px;
+    -fx-cursor: hand;
+    -fx-min-width: 100px;
+    -fx-min-height: 30px;
+    -fx-effect: dropshadow(gaussian, rgba(229,229,16,0.2), 3, 0, 0, 1);
+}
+
+.small_btn:hover {
+    -fx-background-color: #FFFF00;
+    -fx-effect: dropshadow(gaussian, rgba(229,229,16,0.3), 4, 0, 0, 1);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.small_btn:pressed {
     -fx-background-color: #CCCC00;
     -fx-scale-x: 0.98;
     -fx-scale-y: 0.98;
