@@ -10,7 +10,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  */
 public class UserSession {
     private static volatile UserSession instance;
-    private static final ReadWriteLock lock = new ReentrantReadWriteLock();
 
     private final String username;
     private final String role;
@@ -23,9 +22,9 @@ public class UserSession {
      * @param role     The role of the user
      */
     private UserSession(String username, String role) {
-        this.username = username;
-        this.role = role;
-        this.prefs = Preferences.userRoot().node(this.getClass().getName());
+            this.username = username;
+            this.role = role;
+            this.prefs = Preferences.userRoot().node(this.getClass().getName());
     }
 
     /**
@@ -35,20 +34,11 @@ public class UserSession {
      * @param role     The role of the user
      * @return The UserSession instance
      */
-    public static UserSession getInstance(String username, String role) {
-        UserSession result = instance;
-        if (result == null) {
-            lock.writeLock().lock();
-            try {
-                result = instance;
-                if (result == null) {
-                    instance = result = new UserSession(username, role);
-                }
-            } finally {
-                lock.writeLock().unlock();
-            }
+    public static synchronized UserSession getInstance(String username, String role) {
+        if (instance == null) {
+            instance = new UserSession(username, role);
         }
-        return result;
+        return instance;
     }
 
     /**
@@ -100,15 +90,10 @@ public class UserSession {
     /**
      * Cleans up the UserSession by clearing credentials and nullifying the instance.
      */
-    public static void cleanUserSession() {
-        lock.writeLock().lock();
-        try {
-            if (instance != null) {
-                instance.clearCredentials();
-                instance = null;
-            }
-        } finally {
-            lock.writeLock().unlock();
+    public static synchronized void cleanUserSession() {
+        if (instance != null) {
+            instance.clearCredentials();
+            instance = null;
         }
     }
 
