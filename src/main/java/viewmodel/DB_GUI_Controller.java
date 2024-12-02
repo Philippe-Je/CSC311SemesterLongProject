@@ -549,7 +549,17 @@ public class DB_GUI_Controller implements Initializable {
                     return;
                 }
                 int index = data.indexOf(p);
-                Person p2 = new Person(p.getId(), first_name.getText(), last_name.getText(), selectedDepartment.name(), Double.parseDouble(performanceRating.getText()), email.getText());
+                Person p2 = new Person(
+                        p.getId(),
+                        first_name.getText(),
+                        last_name.getText(),
+                        selectedDepartment.name(),
+                        Double.parseDouble(performanceRating.getText()),
+                        email.getText()
+                );
+                // Preserve the existing profile picture
+                p2.setProfilePicture(p.getProfilePicture());
+
                 cnUtil.editUser(p.getId(), p2);
                 data.set(index, p2);
                 tv.getSelectionModel().select(index);

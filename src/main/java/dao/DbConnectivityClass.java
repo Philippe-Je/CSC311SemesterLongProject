@@ -417,23 +417,31 @@ public class DbConnectivityClass {
         connectToDatabase();
         try {
             Connection conn = DriverManager.getConnection(DB_URL, USERNAME, PASSWORD);
-            String sql = "UPDATE users SET first_name=?, last_name=?, department=?, performance_rating=?, email=?, profile_picture=? WHERE id=?";
+            String sql = "UPDATE users SET first_name=?, last_name=?, department=?, performance_rating=?, email=? WHERE id=?";
             PreparedStatement preparedStatement = conn.prepareStatement(sql);
             preparedStatement.setString(1, p.getFirstName());
             preparedStatement.setString(2, p.getLastName());
             preparedStatement.setString(3, p.getDepartment());
             preparedStatement.setDouble(4, p.getPerformanceRating());
             preparedStatement.setString(5, p.getEmail());
-            preparedStatement.setBytes(6, p.getProfilePicture());
-            preparedStatement.setInt(7, id);
+            preparedStatement.setInt(6, id);
             preparedStatement.executeUpdate();
+
+            // Update profile picture only if it's not null
+            if (p.getProfilePicture() != null) {
+                sql = "UPDATE users SET profile_picture=? WHERE id=?";
+                preparedStatement = conn.prepareStatement(sql);
+                preparedStatement.setBytes(1, p.getProfilePicture());
+                preparedStatement.setInt(2, id);
+                preparedStatement.executeUpdate();
+            }
+
             preparedStatement.close();
             conn.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
-
     /**
      * Deletes a user record from the database.
      *
